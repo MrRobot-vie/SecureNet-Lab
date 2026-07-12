@@ -1,5 +1,6 @@
 import socket
 import sys
+import json
 services = {
     21: "FTP",
     22: "SSH",
@@ -23,9 +24,17 @@ def tester_port(ip, port):
    if resultat == 0:
       nom = services.get(port, "inconnu")
       print(f"Port {port} : OUVERT ({nom})")
+      resultats.append({"port": port, "service": nom, "etat": "ouvert"})
    
 ip = sys.argv[1]
 ports = range(1, 1025)
+resultats = []
 with ThreadPoolExecutor(max_workers=50) as executor:
    for port in ports:
       executor.submit(tester_port, ip, port)
+
+donnees = {"ip" : ip, "ports": resultats}
+with open("resultats.json", "w") as fichier: 
+   json.dump(donnees, fichier, indent = 4)
+
+print("\nResultats sauvegardés dans reslutats.json")
